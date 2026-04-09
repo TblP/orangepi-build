@@ -531,6 +531,9 @@ CUSTOM_KERNEL_CONFIG
                 # Copy GPU modules into kernel tree for packaging
                 mkdir -p ${kerneldir}/kernel/bsp/drivers/gpu
                 find ${SRC}/.tmp/gpu_modules_${LINUXFAMILY} -name "*.ko" -exec cp -f {} ${kerneldir}/kernel/bsp/drivers/gpu/ \;
+                # Also install into INSTALL_MOD_PATH so bindeb-pkg picks them up
+                mkdir -p ${kerneldir}/../image/lib/modules/${version}-${LINUXFAMILY}/kernel/bsp/drivers/gpu
+                find ${SRC}/.tmp/gpu_modules_${LINUXFAMILY} -name "*.ko" -exec cp -f {} ${kerneldir}/../image/lib/modules/${version}-${LINUXFAMILY}/kernel/bsp/drivers/gpu/ \;
 	fi
 
 	display_alert "Creating packages"
@@ -556,6 +559,18 @@ CUSTOM_KERNEL_CONFIG
 	# remove firmare image packages here - easier than patching ~40 packaging scripts at once
 	rm -f linux-firmware-image-*.deb
 
+        # Inject GPU modules into linux-image deb
+        if [[ $LINUXFAMILY =~ sun60iw2 ]] && ls linux-image-*.deb 1>/dev/null 2>&1; then
+                local img_deb=$(ls linux-image-*.deb | grep -v dbg | head -1)
+                local tmp_deb_dir=$(mktemp -d)
+                dpkg-deb -x "$img_deb" "$tmp_deb_dir"
+                dpkg-deb --control "$img_deb" "$tmp_deb_dir/DEBIAN"
+                local kver=$(ls "$tmp_deb_dir/lib/modules/")
+                mkdir -p "$tmp_deb_dir/lib/modules/$kver/kernel/bsp/drivers/gpu"
+                find ${SRC}/.tmp/gpu_modules_${LINUXFAMILY} -name "*.ko" -exec cp -f {} "$tmp_deb_dir/lib/modules/$kver/kernel/bsp/drivers/gpu/" \;
+                fakeroot dpkg-deb -b "$tmp_deb_dir" "$img_deb"
+                rm -rf "$tmp_deb_dir"
+        fi
 	rsync --remove-source-files -rq ./*.deb "${DEB_STORAGE}/" || exit_with_error "Failed moving kernel DEBs"
 
 	[[ $(type -t family_tweaks_kernel) == function ]] && family_tweaks_kernel
