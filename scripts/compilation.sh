@@ -529,8 +529,8 @@ CUSTOM_KERNEL_CONFIG
 		make -C bsp/modules/gpu LICHEE_TOOLCHAIN_PATH=$toolchain LICHEE_CROSS_COMPILER=$KERNEL_COMPILER LICHEE_PLATFORM=linux LICHEE_MOD_DIR=${SRC}/.tmp/gpu_modules_${LINUXFAMILY} LICHEE_KERN_DIR=${kerneldir} CROSS_COMPILE=$toolchain/$KERNEL_COMPILER ARCH=$ARCHITECTURE
 		make -C bsp/modules/gpu modules_install LICHEE_TOOLCHAIN_PATH=$toolchain LICHEE_CROSS_COMPILER=$KERNEL_COMPILER LICHEE_PLATFORM=linux LICHEE_MOD_DIR=${SRC}/.tmp/gpu_modules_${LINUXFAMILY} LICHEE_KERN_DIR=${kerneldir} CROSS_COMPILE=$toolchain/$KERNEL_COMPILER ARCH=$ARCHITECTURE
                 # Copy GPU modules into kernel tree for packaging
-                mkdir -p ${kerneldir}/extra
-                find ${SRC}/.tmp/gpu_modules_${LINUXFAMILY} -name "*.ko" -exec cp -f {} ${kerneldir}/extra/ \;
+                mkdir -p ${kerneldir}/kernel/bsp/drivers/gpu
+                find ${SRC}/.tmp/gpu_modules_${LINUXFAMILY} -name "*.ko" -exec cp -f {} ${kerneldir}/kernel/bsp/drivers/gpu/ \;
 	fi
 
 	display_alert "Creating packages"

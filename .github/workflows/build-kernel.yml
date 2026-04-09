@@ -27,6 +27,14 @@ jobs:
             COMPRESS_OUTPUTIMAGE=no 2>&1 | tee build.log
         continue-on-error: true
 
+      - name: Find GPU modules
+        if: always()
+        run: |
+          echo "=== GPU modules in .tmp ==="
+          find /home/runner/work/orangepi-build/orangepi-build -name "*.ko" 2>/dev/null | grep -i "pvr\|rogue\|gpu\|bxm" | head -20
+          echo "=== All .tmp gpu ==="
+          find /home/runner/work/orangepi-build/orangepi-build -path "*gpu_modules*" 2>/dev/null | head -20
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: always()
