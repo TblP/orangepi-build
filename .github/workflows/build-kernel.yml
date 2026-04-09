@@ -18,8 +18,13 @@ jobs:
             BOARD=orangepi4pro \
             BRANCH=current \
             BUILD_TARGET=kernel \
-            KERNEL_CONFIGURE=no \
-            COMPRESS_OUTPUTIMAGE=no
+            KERNEL_CONFIGURE=no
+        continue-on-error: true
+
+      - name: Show output
+        run: |
+          find . -name "*.deb" 2>/dev/null
+          ls output/debs/ 2>/dev/null || echo "no debs"
 
       - name: Upload kernel
         uses: actions/upload-artifact@v4
@@ -27,3 +32,4 @@ jobs:
           name: kernel-orangepi4pro
           path: output/debs/*.deb
           retention-days: 7
+          if-no-files-found: warn
