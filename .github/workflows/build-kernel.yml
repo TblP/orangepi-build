@@ -1,0 +1,29 @@
+name: Build Orange Pi 4Pro Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build kernel
+        run: |
+          sudo ./build.sh \
+            BOARD=orangepi4pro \
+            BRANCH=current \
+            BUILD_TARGET=kernel \
+            KERNEL_CONFIGURE=no \
+            COMPRESS_OUTPUTIMAGE=no
+
+      - name: Upload kernel
+        uses: actions/upload-artifact@v3
+        with:
+          name: kernel-orangepi4pro
+          path: output/debs/*.deb
+          retention-days: 7
