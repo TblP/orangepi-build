@@ -210,7 +210,8 @@ if [[ -z $BOARD ]]; then
 	options+=("orangepi5plus"                 "Rockchip  RK3588 octa core 4-32GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe eMMC")
 	options+=("orangepicm4"                 "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
 	options+=("orangepi3b"                  "Rockchip  RK3566 quad core 2-8GB RAM GBE eMMC USB3 NvMe WiFi/BT")
-	options+=("orangepi6plus"                 "Cix P1 12-core 16-64GB RAM 5GBE USB3 USB-C WiFi/BT NVMe")
+	options+=("orangepi6"                   "Cix P1 12-core 8-24GB RAM 2.5GBE USB3 USB-C WiFi/BT NVMe")
+	options+=("orangepi6plus"               "Cix P1 12-core 16-32GB RAM 5GBE USB3 USB-C WiFi/BT NVMe")
 	options+=("orangepirv"                  "Starfive  JH7110 quad core 2-8GB RAM GBE USB3 NvMe WiFi/BT")
 	options+=("orangepirv2"                  "Ky X1 octa core 2-8GB RAM GBE USB3 WiFi/BT NVMe eMMC")
 	options+=("orangepir2s"                  "Ky X1 octa core 2-8GB RAM 2.5GBE USB3 eMMC")
@@ -463,18 +464,18 @@ if [[ ${IGNORE_UPDATES} != yes ]]; then
 		if [[ ${GITEE_SERVER} == yes ]]; then
 			fetch_from_repo "https://gitee.com/orangepi-xunlong/component_cix-$BRANCH.git" "${EXTER}/cache/sources/component_cix-$BRANCH" "branch:main"
 
-			if [[ ! -f "${EXTER}/cache/sources/component_cix-$BRANCH/debs/cix-npu-onnxruntime_1.1.0_arm64.deb" ]]; then
+			if [[ ! -f "${EXTER}/cache/sources/component_cix-$BRANCH/debs/cix-npu-onnxruntime_1.2.0_arm64.deb" ]]; then
 				display_alert "Downloading deb" "cix-npu-onnxruntime" "info"
 				wget -c -t 5 -P "${EXTER}/cache/sources/component_cix-$BRANCH/debs/" \
-				http://www.iplaystore.cn/upload/debs/cix-npu-onnxruntime_1.1.0_arm64.deb
+				http://www.iplaystore.cn/upload/debs/cix-npu-onnxruntime_1.2.0_arm64.deb
 			fi
 		else
 			fetch_from_repo "https://github.com/orangepi-xunlong/component_cix-$BRANCH.git" "${EXTER}/cache/sources/component_cix-$BRANCH" "branch:main"
 
-			if [[ ! -f "${EXTER}/cache/sources/component_cix-$BRANCH/debs/cix-npu-onnxruntime_1.1.0_arm64.deb" ]]; then
+			if [[ ! -f "${EXTER}/cache/sources/component_cix-$BRANCH/debs/cix-npu-onnxruntime_1.2.0_arm64.deb" ]]; then
 				display_alert "Downloading deb" "cix-npu-onnxruntime" "info"
 				wget -c -t 5 -P "${EXTER}/cache/sources/component_cix-$BRANCH/debs/" \
-				https://github.com/orangepi-xunlong/component_cix-${BRANCH}/releases/download/v1.1.0/cix-npu-onnxruntime_1.1.0_arm64.deb
+				https://github.com/orangepi-xunlong/component_cix-${BRANCH}/releases/download/v1.2.0/cix-npu-onnxruntime_1.2.0_arm64.deb
 			fi
 		fi
 
