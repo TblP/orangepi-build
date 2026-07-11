@@ -18,22 +18,42 @@ jobs:
           df -h
 
       - name: Build kernel
+        shell: bash
         run: |
+          set -o pipefail
           sudo ./build.sh \
             BOARD=orangepi4pro \
             BRANCH=current \
             BUILD_OPT=kernel \
             KERNEL_CONFIGURE=no \
             COMPRESS_OUTPUTIMAGE=no 2>&1 | tee build.log
-        continue-on-error: true
 
-      - name: Find GPU modules
-        if: always()
+      - name: Verify PowerVR BXM artifacts
+        shell: bash
         run: |
-          echo "=== GPU modules in .tmp ==="
-          find /home/runner/work/orangepi-build/orangepi-build -name "*.ko" 2>/dev/null | grep -i "pvr\|rogue\|gpu\|bxm" | head -20
-          echo "=== All .tmp gpu ==="
-          find /home/runner/work/orangepi-build/orangepi-build -path "*gpu_modules*" 2>/dev/null | head -20
+          set -euo pipefail
+
+          config=$(find kernel -type f -name .config -print -quit)
+          test -n "${config}"
+          grep -Fx 'CONFIG_AW_GPU_TYPE="bxm"' "${config}"
+          if grep -Eq '^CONFIG_DRM_(IMAGINATION|POWERVR)=' "${config}"; then
+            echo "Open DRM PowerVR and vendor pvrsrvkm must not be enabled together" >&2
+            exit 1
+          fi
+
+          module=$(find .tmp -type f -name pvrsrvkm.ko -print -quit)
+          test -n "${module}"
+
+          image_deb=$(find output/debs -maxdepth 1 -type f \
+            -name 'linux-image-current-sun60iw2_*.deb' -print -quit)
+          test -n "${image_deb}"
+          dpkg-deb --contents "${image_deb}" | grep -F 'pvrsrvkm.ko'
+
+          mkdir -p output/gpu-verification
+          cp "${config}" output/gpu-verification/kernel.config
+          cp "${module}" output/gpu-verification/pvrsrvkm.ko
+          sha256sum "${image_deb}" "${module}" \
+            | tee output/gpu-verification/SHA256SUMS
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -42,6 +62,7 @@ jobs:
           name: kernel-orangepi4pro
           path: |
             output/debs/*.deb
+            output/gpu-verification/*
             build.log
           retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: error
