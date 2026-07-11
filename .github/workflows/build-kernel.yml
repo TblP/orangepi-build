@@ -1,6 +1,12 @@
 name: Build Orange Pi 4Pro Kernel
 
 on:
+  push:
+    branches:
+      - next
+    paths:
+      - .github/workflows/build-kernel.yml
+      - external/config/kernel/linux-sun60iw2-current-a733.config
   workflow_dispatch:
 
 jobs:
